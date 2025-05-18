@@ -1,11 +1,11 @@
+'use client';  // <-- Move this line to the top
+
 import { FiSearch, FiMail, FiGlobe, FiMapPin, FiPhone, FiUser, FiMessageSquare } from 'react-icons/fi';
 import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
 import { getUsers } from '@/lib/api';
 import type { User } from '@/lib/api';
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import Link from 'next/link';
-
-'use client';
 
 const mapContainerStyle = {
   width: '100%',

@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo, useCallback } from 'react';
 import { FiMail, FiGlobe, FiMapPin, FiPhone, FiUser, FiMessageSquare } from 'react-icons/fi';
 import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
 import Link from 'next/link';
+import UserProfileSkeleton from '@/components/UserProfileSkeleton';
 
 const mapContainerStyle = {
   width: '100%',
@@ -253,6 +254,5 @@ export default function UserProfile({ params }: { params: { id: string } }) {
   );
 }
 
-// Skeleton Loader
-function UserProfileSkeleton() {
+
 

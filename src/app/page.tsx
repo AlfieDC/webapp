@@ -120,3 +120,13 @@ function FeatureCard({ title, description, link }: FeatureCardProps) {
     </a>
   );
 }
+
+// filepath: src/app/users/page.tsx
+export default function UsersPage() {
+  return <div>Users Page</div>;
+}
+
+// filepath: src/app/posts/page.tsx
+export default function PostsPage() {
+  return <div>Posts Page</div>;
+}

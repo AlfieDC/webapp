@@ -3,8 +3,7 @@
 import { FiUsers, FiMessageSquare, FiFileText } from 'react-icons/fi';
 import { ReactNode } from 'react';
 import { getStats } from '@/lib/api';
-import dynamic from 'next/dynamic';
-const Map = dynamic(() => import('@/components/Map'), { ssr: false });
+
 interface StatCardProps {
   icon: ReactNode;
   title: string;

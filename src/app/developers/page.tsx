@@ -85,7 +85,7 @@ function Map({ address }: { address: User['address'] }) {
                 <p className="font-medium">{address.street}, {address.suite}</p>
                 <p className="text-sm">{address.city}, {address.zipcode}</p>
                 <a
-                  href={`https://www.google.com/maps/search/?api=1&query=${center.lat},${center.lng}`}
+                  href={https://www.google.com/maps/search/?api=1&query=${center.lat},${center.lng}}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-sm text-blue-500 hover:text-blue-700 mt-2 inline-block"
@@ -111,8 +111,8 @@ export default function UserProfile({ params }: { params: { id: string } }) {
     const fetchUserAndPosts = async () => {
       try {
         const [userRes, postsRes] = await Promise.all([
-          fetch(`https://jsonplaceholder.typicode.com/users/${params.id}`),
-          fetch(`https://jsonplaceholder.typicode.com/users/${params.id}/posts`)
+          fetch(https://jsonplaceholder.typicode.com/users/${params.id}),
+          fetch(https://jsonplaceholder.typicode.com/users/${params.id}/posts)
         ]);
 
         if (!userRes.ok || !postsRes.ok) {
@@ -173,7 +173,7 @@ export default function UserProfile({ params }: { params: { id: string } }) {
                 <div className="space-y-4">
                   <div className="flex items-center gap-2">
                     <FiMail className="text-primary" />
-                    <a href={`mailto:${user.email}`} className="hover:text-primary">
+                    <a href={mailto:${user.email}} className="hover:text-primary">
                       {user.email}
                     </a>
                   </div>
@@ -184,7 +184,7 @@ export default function UserProfile({ params }: { params: { id: string } }) {
                   <div className="flex items-center gap-2">
                     <FiGlobe className="text-primary" />
                     <a
-                      href={`https://${user.website}`}
+                      href={https://${user.website}}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="hover:text-primary"
@@ -231,7 +231,7 @@ export default function UserProfile({ params }: { params: { id: string } }) {
             {posts.map((post) => (
               <article key={post.id} className="p-6 rounded-xl bg-card border">
                 <h3 className="text-xl font-semibold mb-2 capitalize">
-                  <Link href={`/posts/${post.id}`} className="hover:text-primary">
+                  <Link href={/posts/${post.id}} className="hover:text-primary">
                     {post.title}
                   </Link>
                 </h3>
@@ -240,7 +240,7 @@ export default function UserProfile({ params }: { params: { id: string } }) {
                 </p>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <FiMessageSquare />
-                  <Link href={`/posts/${post.id}`} className="hover:text-primary">
+                  <Link href={/posts/${post.id}} className="hover:text-primary">
                     View Comments
                   </Link>
                 </div>
@@ -253,31 +253,6 @@ export default function UserProfile({ params }: { params: { id: string } }) {
   );
 }
 
+// Skeleton Loader
 function UserProfileSkeleton() {
-  return (
-    <div className="min-h-screen bg-background py-12">
-      <div className="container mx-auto px-6 animate-pulse space-y-6">
-        <div className="h-8 bg-muted rounded w-1/3" />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-4">
-            <div className="h-6 bg-muted rounded w-1/2" />
-            <div className="h-6 bg-muted rounded w-2/3" />
-            <div className="h-6 bg-muted rounded w-1/3" />
-          </div>
-          <div className="h-24 bg-muted rounded" />
-        </div>
-        <div className="h-[200px] bg-muted rounded" />
-        <div className="space-y-4">
-          {[1, 2, 3].map((_, i) => (
-            <div key={i} className="p-6 bg-card border rounded-xl space-y-2">
-              <div className="h-4 bg-muted rounded w-3/4" />
-              <div className="h-4 bg-muted rounded w-full" />
-              <div className="h-4 bg-muted rounded w-1/2" />
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
 

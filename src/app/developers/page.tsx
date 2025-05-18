@@ -1,7 +1,8 @@
+'use client';
+
 import { FiSearch } from 'react-icons/fi';
 import { getUsers } from '@/lib/api';
 import type { User } from '@/lib/api';
-'use client';
 
 export default async function DevelopersPage() {
   const developers = await getUsers();

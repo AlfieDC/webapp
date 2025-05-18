@@ -1,24 +1,76 @@
+'use client';
+
 import { FiSearch } from 'react-icons/fi';
 import { getUsers } from '@/lib/api';
 import type { User } from '@/lib/api';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { FiMail, FiGlobe, FiMapPin, FiPhone, FiUser , FiMessageSquare } from 'react-icons/fi';
 import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
 import Link from 'next/link';
 
-'use client';
+const mapContainerStyle = {
+  width: '100%',
+  height: '200px',
+};
 
-export default function DevelopersPage() {
-  const [developers, setDevelopers] = useState<User[]>([]);
+const mapOptions = {
+  disableDefaultUI: false,
+  zoomControl: true,
+  mapTypeControl: true,
+  streetViewControl: true,
+  styles: [
+    {
+      featureType: 'poi',
+      elementType: 'labels',
+      stylers: [{ visibility: 'off' }],
+    },
+  ],
+};
 
-  useEffect(() => {
-    const fetchDevelopers = async () => {
-      const users = await getUsers();
-      setDevelopers(users);
+interface User {
+  id: number;
+  name: string;
+  username: string;
+  email: string;
+  phone: string;
+  website: string;
+  address: {
+    street: string;
+    suite: string;
+    city: string;
+    zipcode: string;
+    geo: {
+      lat: string;
+      lng: string;
     };
+  };
+  company: {
+    name: string;
+    catchPhrase: string;
+    bs: string;
+  };
+}
 
-    fetchDevelopers();
-  }, []);
+interface Post {
+  id: number;
+  title: string;
+  body: string;
+  userId: number;
+}
+
+function Map({ address }: { address: User['address'] }) {
+  const [isInfoWindowOpen, setIsInfoWindowOpen] = useState(false);
+
+  const center = useMemo(() => ({
+    lat: parseFloat(address.geo.lat),
+    lng: parseFloat(address.geo.lng),
+  }), [address.geo.lat, address.geo.lng]);
+
+  const onLoad = useCallback((map: google.maps.Map) => {
+    const bounds = new window.google.maps.LatLngBounds(center);
+    map.fitBounds(bounds);
+    map.setZoom(12);
+  }, [center]);
 
   return (
     <div className="min-h-screen bg-background py-12">
@@ -34,54 +86,44 @@ export default function DevelopersPage() {
             />
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {developers.map((developer) => (
-            <DeveloperCard key={developer.id} developer={developer} />
-          ))}
-        </div>
+        <LoadScript googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}>
+          <GoogleMap
+            mapContainerStyle={mapContainerStyle}
+            center={center}
+            zoom={12}
+            options={mapOptions}
+            onLoad={onLoad}
+          >
+            <Marker position={center} onClick={() => setIsInfoWindowOpen(true)}>
+              {isInfoWindowOpen && (
+                <InfoWindow position={center} onCloseClick={() => setIsInfoWindowOpen(false)}>
+                  <div className="p-2">
+                    <p className="font-medium">{address.street}, {address.suite}</p>
+                    <p className="text-sm">{address.city}, {address.zipcode}</p>
+                    <a
+                      href={`https://www.google.com/maps/search/?api=1&query=${center.lat},${center.lng}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-blue-500 hover:text-blue-700 mt-2 inline-block"
+                    >
+                      Open in Google Maps
+                    </a>
+                  </div>
+                </InfoWindow>
+              )}
+            </Marker>
+          </GoogleMap>
+        </LoadScript>
       </div>
     </div>
   );
 }
 
-function DeveloperCard({ developer }: { developer: User }) {
-  return (
-    <div className="p-6 rounded-xl bg-card border transition-all hover:shadow-lg">
-      <div className="flex items-center gap-4 mb-6">
-        <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-          <span className="text-xl font-semibold text-primary">
-            {developer.name.charAt(0)}
-          </span>
-        </div>
-        <div>
-          <h2 className="text-xl font-semibold">{developer.name}</h2>
-          <p className="text-sm text-muted-foreground">@{developer.username}</p>
-        </div>
-      </div>
-      <div className="space-y-2 text-sm">
-        <p className="text-muted-foreground">
-          <strong>Email:</strong> {developer.email}
-        </p>
-        <p className="text-muted-foreground">
-          <strong>Phone:</strong> {developer.phone}
-        </p>
-        <p className="text-muted-foreground">
-          <strong>Website:</strong>{' '}
-          <a
-            href={`https://${developer.website}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-primary"
-          >
-            {developer.website}
-          </a>
-        </p>
-      </div>
-      <div className="mt-4 pt-4 border-t">
-        <Link href={`/developers/${developer.id}`} className="text-sm text-primary hover:underline">
-          View Profile →
-        </Link>
-      </div>
-    </div>
-  );
-}
+export default function UserProfile({ params }: { params: { id: string } }) {
+  const [user, setUser ] = useState<User | null>(null);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchUser And

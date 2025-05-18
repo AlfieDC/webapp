@@ -1,28 +1,14 @@
 'use client';
 
 import { useEffect, useState, useMemo, useCallback } from 'react';
-import { FiMail, FiGlobe, FiMapPin, FiPhone, FiUser, FiMessageSquare } from 'react-icons/fi';
-import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
-
-const mapContainerStyle = {
-  width: '100%',
-  height: '200px',
-};
-
-const mapOptions = {
-  disableDefaultUI: false,
-  zoomControl: true,
-  mapTypeControl: true,
-  streetViewControl: true,
-  styles: [
-    {
-      featureType: 'poi',
-      elementType: 'labels',
-      stylers: [{ visibility: 'off' }],
-    },
-  ],
-};
+import {
+  FiUser, FiMail, FiPhone, FiGlobe, FiMapPin
+} from 'react-icons/fi';
+import {
+  GoogleMap, LoadScript, Marker, InfoWindow
+} from '@react-google-maps/api';
 
 interface User {
   id: number;
@@ -56,18 +42,15 @@ interface Post {
 }
 
 function Map({ address }: { address: User['address'] }) {
-  const [isInfoWindowOpen, setIsInfoWindowOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
-  const center = useMemo(
-    () => ({
-      lat: parseFloat(address.geo.lat),
-      lng: parseFloat(address.geo.lng),
-    }),
-    [address.geo.lat, address.geo.lng]
-  );
+  const center = useMemo(() => ({
+    lat: parseFloat(address.geo.lat),
+    lng: parseFloat(address.geo.lng),
+  }), [address.geo.lat, address.geo.lng]);
 
   const onLoad = useCallback((map: google.maps.Map) => {
-    const bounds = new window.google.maps.LatLngBounds(center);
+    const bounds = new google.maps.LatLngBounds(center);
     map.fitBounds(bounds);
     map.setZoom(12);
   }, [center]);
@@ -75,32 +58,23 @@ function Map({ address }: { address: User['address'] }) {
   return (
     <LoadScript googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}>
       <GoogleMap
-        mapContainerStyle={mapContainerStyle}
+        mapContainerStyle={{ width: '100%', height: '200px' }}
         center={center}
         zoom={12}
-        options={mapOptions}
+        options={{
+          disableDefaultUI: false,
+          zoomControl: true,
+          mapTypeControl: true,
+          streetViewControl: true,
+        }}
         onLoad={onLoad}
       >
-        <Marker
-          position={center}
-          onClick={() => setIsInfoWindowOpen(true)}
-        >
-          {isInfoWindowOpen && (
-            <InfoWindow
-              position={center}
-              onCloseClick={() => setIsInfoWindowOpen(false)}
-            >
-              <div className="p-2">
-                <p className="font-medium">{address.street}, {address.suite}</p>
-                <p className="text-sm">{address.city}, {address.zipcode}</p>
-                <a
-                  href={`https://www.google.com/maps/search/?api=1&query=${center.lat},${center.lng}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm text-blue-500 hover:text-blue-700 mt-2 inline-block"
-                >
-                  Open in Google Maps
-                </a>
+        <Marker position={center} onClick={() => setIsOpen(true)}>
+          {isOpen && (
+            <InfoWindow position={center} onCloseClick={() => setIsOpen(false)}>
+              <div>
+                <p>{address.street}, {address.suite}</p>
+                <p>{address.city}, {address.zipcode}</p>
               </div>
             </InfoWindow>
           )}
@@ -110,23 +84,24 @@ function Map({ address }: { address: User['address'] }) {
   );
 }
 
-export default function UserProfile({ params }: { params: { id: string } }) {
+export default function UserProfile() {
+  const { id } = useParams();
   const [user, setUser] = useState<User | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchUserAndPosts = async () => {
+    if (!id) return;
+
+    const fetchData = async () => {
       try {
         const [userRes, postsRes] = await Promise.all([
-          fetch(`https://jsonplaceholder.typicode.com/users/${params.id}`),
-          fetch(`https://jsonplaceholder.typicode.com/users/${params.id}/posts`)
+          fetch(`https://jsonplaceholder.typicode.com/users/${id}`),
+          fetch(`https://jsonplaceholder.typicode.com/users/${id}/posts`)
         ]);
 
-        if (!userRes.ok || !postsRes.ok) {
-          throw new Error('Failed to fetch data');
-        }
+        if (!userRes.ok || !postsRes.ok) throw new Error('Failed to fetch');
 
         const userData = await userRes.json();
         const postsData = await postsRes.json();
@@ -134,182 +109,76 @@ export default function UserProfile({ params }: { params: { id: string } }) {
         setUser(userData);
         setPosts(postsData);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
+        setError(err instanceof Error ? err.message : 'Unknown error');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchUserAndPosts();
-  }, [params.id]);
+    fetchData();
+  }, [id]);
 
-  if (loading) {
-    return <UserProfileSkeleton />;
-  }
-
-  if (error || !user) {
-    return (
-      <div className="min-h-screen bg-background py-12">
-        <div className="container mx-auto px-6">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-red-500 mb-4">Error</h1>
-            <p className="text-muted-foreground">{error || 'User not found'}</p>
-            <Link href="/developers" className="text-primary hover:underline mt-4 inline-block">
-              Back to Developers
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  if (loading) return <div className="p-6">Loading...</div>;
+  if (error || !user) return (
+    <div className="p-6 text-red-500">
+      {error || 'User not found'}
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-background py-12">
       <div className="container mx-auto px-6">
-        {/* User Info */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
           <div className="lg:col-span-2">
-            <div className="p-6 rounded-xl bg-card border">
+            <div className="p-6 bg-card border rounded-xl">
               <div className="flex items-center gap-4 mb-6">
-                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-                  <FiUser className="w-8 h-8 text-primary" />
-                </div>
+                <FiUser className="w-8 h-8 text-primary" />
                 <div>
                   <h1 className="text-2xl font-bold">{user.name}</h1>
                   <p className="text-muted-foreground">@{user.username}</p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2">
-                    <FiMail className="text-primary" />
-                    <a href={`mailto:${user.email}`} className="hover:text-primary">
-                      {user.email}
-                    </a>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <FiPhone className="text-primary" />
-                    <span>{user.phone}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <FiGlobe className="text-primary" />
-                    <a
-                      href={`https://${user.website}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="hover:text-primary"
-                    >
-                      {user.website}
-                    </a>
-                  </div>
-                </div>
-
+              <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                  <h3 className="font-semibold mb-2">Company</h3>
-                  <p className="text-muted-foreground">{user.company.name}</p>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {user.company.catchPhrase}
-                  </p>
+                  <div className="flex gap-2 items-center mb-2"><FiMail /><a href={`mailto:${user.email}`}>{user.email}</a></div>
+                  <div className="flex gap-2 items-center mb-2"><FiPhone /><span>{user.phone}</span></div>
+                  <div className="flex gap-2 items-center"><FiGlobe /><a href={`https://${user.website}`} target="_blank">{user.website}</a></div>
+                </div>
+                <div>
+                  <p><strong>Company:</strong> {user.company.name}</p>
+                  <p className="text-muted-foreground text-sm">{user.company.catchPhrase}</p>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="lg:col-span-1">
-            <div className="p-6 rounded-xl bg-card border h-full">
-              <h2 className="text-xl font-semibold mb-4">Location</h2>
-              <div className="mb-4">
-                <div className="flex items-start gap-2">
-                  <FiMapPin className="text-primary mt-1" />
-                  <div>
-                    <p>{user.address.street}, {user.address.suite}</p>
-                    <p>{user.address.city}, {user.address.zipcode}</p>
-                  </div>
-                </div>
-              </div>
-              <div className="h-[200px] rounded-lg overflow-hidden">
-                <Map address={user.address} />
+          <div className="p-6 bg-card border rounded-xl">
+            <h2 className="text-xl font-semibold mb-4">Location</h2>
+            <div className="mb-4 flex gap-2 items-start">
+              <FiMapPin className="text-primary mt-1" />
+              <div>
+                <p>{user.address.street}, {user.address.suite}</p>
+                <p>{user.address.city}, {user.address.zipcode}</p>
               </div>
             </div>
+            <Map address={user.address} />
           </div>
         </div>
 
-        {/* User Posts */}
         <div>
-          <h2 className="text-2xl font-bold mb-6">Posts by {user.name}</h2>
-          <div className="space-y-6">
+          <h2 className="text-2xl font-bold mb-4">Posts</h2>
+          <ul className="space-y-4">
             {posts.map((post) => (
-              <article key={post.id} className="p-6 rounded-xl bg-card border">
-                <h3 className="text-xl font-semibold mb-2 capitalize">
-                  <Link href={`/posts/${post.id}`} className="hover:text-primary">
-                    {post.title}
-                  </Link>
-                </h3>
-                <p className="text-muted-foreground mb-4">
-                  {post.body.length > 200 ? `${post.body.substring(0, 200)}...` : post.body}
-                </p>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <FiMessageSquare />
-                  <Link href={`/posts/${post.id}`} className="hover:text-primary">
-                    View Comments
-                  </Link>
-                </div>
-              </article>
+              <li key={post.id} className="p-4 border rounded-xl bg-card">
+                <h3 className="font-semibold">{post.title}</h3>
+                <p className="text-sm text-muted-foreground">{post.body}</p>
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
       </div>
     </div>
   );
 }
 
-function UserProfileSkeleton() {
-  return (
-    <div className="min-h-screen bg-background py-12">
-      <div className="container mx-auto px-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-          <div className="lg:col-span-2">
-            <div className="p-6 rounded-xl bg-card border">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="w-16 h-16 rounded-full bg-primary/10 animate-pulse"></div>
-                <div className="space-y-2">
-                  <div className="h-8 w-48 bg-card animate-pulse rounded"></div>
-                  <div className="h-4 w-32 bg-card animate-pulse rounded"></div>
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="h-6 bg-card animate-pulse rounded"></div>
-                  ))}
-                </div>
-                <div className="space-y-2">
-                  <div className="h-6 w-32 bg-card animate-pulse rounded"></div>
-                  <div className="h-4 w-48 bg-card animate-pulse rounded"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="lg:col-span-1">
-            <div className="p-6 rounded-xl bg-card border">
-              <div className="h-6 w-32 bg-card animate-pulse rounded mb-4"></div>
-              <div className="h-[200px] bg-card animate-pulse rounded-lg"></div>
-            </div>
-          </div>
-        </div>
-        <div className="space-y-6">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="p-6 rounded-xl bg-card border">
-              <div className="h-6 w-3/4 bg-card animate-pulse rounded mb-4"></div>
-              <div className="space-y-2">
-                <div className="h-4 w-full bg-card animate-pulse rounded"></div>
-                <div className="h-4 w-2/3 bg-card animate-pulse rounded"></div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}

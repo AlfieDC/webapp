@@ -1,10 +1,17 @@
 import { FiSearch } from 'react-icons/fi';
 import { getUsers } from '@/lib/api';
 import type { User } from '@/lib/api';
+import { useEffect, useState, useMemo, useCallback } from 'react';
+import { FiMail, FiGlobe, FiMapPin, FiPhone, FiUser , FiMessageSquare } from 'react-icons/fi';
+import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
+import Link from 'next/link';
+
 'use client';
 
 export default async function DevelopersPage() {
   const developers = await getUsers();
+}
+
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import { FiMail, FiGlobe, FiMapPin, FiPhone, FiUser, FiMessageSquare } from 'react-icons/fi';
 import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';

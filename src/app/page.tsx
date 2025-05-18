@@ -72,31 +72,37 @@ export default async function Home() {
       {/* Stats Section */}
       <div className="container mx-auto px-6 py-16">
         <h2 className="text-3xl font-bold text-center mb-12">Dashboard</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <StatCard
-            icon={<FiUsers className="w-8 h-8" />}
-            title="Active Foodies"
-            value={stats.users.toString()}
-            max={Math.max(stats.users, stats.posts, stats.comments)}
-            color="from-blue-400 to-blue-600"
-          />
-          <StatCard
-            icon={<FiFileText className="w-8 h-8" />}
-            title="Total Posts"
-            value={stats.posts.toString()}
-            max={Math.max(stats.users, stats.posts, stats.comments)}
-            color="from-cyan-400 to-cyan-600"
-          />
-          <StatCard
-            icon={<FiMessageSquare className="w-8 h-8" />}
-            title="Comments"
-            value={stats.comments.toString()}
-            max={Math.max(stats.users, stats.posts, stats.comments)}
-            color="from-indigo-400 to-indigo-600"
-          />
-        </div>
-        {/* Bar Graph */}
-        <BarGraph stats={stats} />
+        {/*
+          Find the max value for scaling bars
+        */}
+        {(() => {
+          const max = Math.max(stats.users, stats.posts, stats.comments);
+          return (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <StatCard
+                icon={<FiUsers className="w-8 h-8" />}
+                title="Active Foodies"
+                value={stats.users.toString()}
+                max={max}
+                color="from-blue-400 to-blue-600"
+              />
+              <StatCard
+                icon={<FiFileText className="w-8 h-8" />}
+                title="Total Posts"
+                value={stats.posts.toString()}
+                max={max}
+                color="from-cyan-400 to-cyan-600"
+              />
+              <StatCard
+                icon={<FiMessageSquare className="w-8 h-8" />}
+                title="Comments"
+                value={stats.comments.toString()}
+                max={max}
+                color="from-indigo-400 to-indigo-600"
+              />
+            </div>
+          );
+        })()}
       </div>
     </div>
   );

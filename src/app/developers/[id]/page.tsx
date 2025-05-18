@@ -4,9 +4,7 @@ import { useEffect, useState } from 'react';
 import { FiMail, FiGlobe, FiMapPin, FiPhone, FiUser, FiMessageSquare } from 'react-icons/fi';
 import Link from 'next/link';
 
-// Import your loading skeleton (make sure this file exists or adjust path accordingly)
-import UserProfileSkeleton from '@/components/UserProfileSkeleton'; // Adjust the path if needed
-
+import UserProfileSkeleton from '@/components/UserProfileSkeleton'; 
 type User = {
   id: number;
   name: string;

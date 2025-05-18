@@ -1,10 +1,14 @@
+import { FiSearch } from 'react-icons/fi';
+import { getUsers } from '@/lib/api';
+import type { User } from '@/lib/api';
 'use client';
 
+export default async function DevelopersPage() {
+  const developers = await getUsers();
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import { FiMail, FiGlobe, FiMapPin, FiPhone, FiUser, FiMessageSquare } from 'react-icons/fi';
 import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
 import Link from 'next/link';
-import UserProfileSkeleton from '@/components/UserProfileSkeleton';
 
 const mapContainerStyle = {
   width: '100%',
@@ -71,6 +75,19 @@ function Map({ address }: { address: User['address'] }) {
   }, [center]);
 
   return (
+    <div className="min-h-screen bg-background py-12">
+      <div className="container mx-auto px-6">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-4xl font-bold">Developer Directory</h1>
+          <div className="relative w-64">
+            <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder="Search developers..."
+              className="w-full pl-10 pr-4 py-2 rounded-lg bg-card border border-input focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+          </div>
+        </div>
     <LoadScript googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}>
       <GoogleMap
         mapContainerStyle={mapContainerStyle}
@@ -86,7 +103,7 @@ function Map({ address }: { address: User['address'] }) {
                 <p className="font-medium">{address.street}, {address.suite}</p>
                 <p className="text-sm">{address.city}, {address.zipcode}</p>
                 <a
-                  href={https://www.google.com/maps/search/?api=1&query=${center.lat},${center.lng}}
+                  href={`https://www.google.com/maps/search/?api=1&query=${center.lat},${center.lng}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-sm text-blue-500 hover:text-blue-700 mt-2 inline-block"
@@ -112,8 +129,8 @@ export default function UserProfile({ params }: { params: { id: string } }) {
     const fetchUserAndPosts = async () => {
       try {
         const [userRes, postsRes] = await Promise.all([
-          fetch(https://jsonplaceholder.typicode.com/users/${params.id}),
-          fetch(https://jsonplaceholder.typicode.com/users/${params.id}/posts)
+          fetch(`https://jsonplaceholder.typicode.com/users/${params.id}`),
+          fetch(`https://jsonplaceholder.typicode.com/users/${params.id}/posts`)
         ]);
 
         if (!userRes.ok || !postsRes.ok) {
@@ -132,6 +149,10 @@ export default function UserProfile({ params }: { params: { id: string } }) {
       }
     };
 
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {developers.map((developer) => (
+            <DeveloperCard key={developer.id} developer={developer} />
+          ))}
     fetchUserAndPosts();
   }, [params.id]);
 
@@ -150,10 +171,20 @@ export default function UserProfile({ params }: { params: { id: string } }) {
           </Link>
         </div>
       </div>
+    </div>
+  );
+}
     );
   }
 
+function DeveloperCard({ developer }: { developer: User }) {
   return (
+    <div className="p-6 rounded-xl bg-card border transition-all hover:shadow-lg">
+      <div className="flex items-center gap-4 mb-6">
+        <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+          <span className="text-xl font-semibold text-primary">
+            {developer.name.charAt(0)}
+          </span>
     <div className="min-h-screen bg-background py-12">
       <div className="container mx-auto px-6">
         {/* User Info */}
@@ -174,7 +205,7 @@ export default function UserProfile({ params }: { params: { id: string } }) {
                 <div className="space-y-4">
                   <div className="flex items-center gap-2">
                     <FiMail className="text-primary" />
-                    <a href={mailto:${user.email}} className="hover:text-primary">
+                    <a href={`mailto:${user.email}`} className="hover:text-primary">
                       {user.email}
                     </a>
                   </div>
@@ -185,7 +216,7 @@ export default function UserProfile({ params }: { params: { id: string } }) {
                   <div className="flex items-center gap-2">
                     <FiGlobe className="text-primary" />
                     <a
-                      href={https://${user.website}}
+                      href={`https://${user.website}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="hover:text-primary"
@@ -227,12 +258,18 @@ export default function UserProfile({ params }: { params: { id: string } }) {
 
         {/* User Posts */}
         <div>
+          <h2 className="text-lg font-semibold">
+            <a href={`/developers/${developer.id}`} className="hover:text-primary">
+              {developer.name}
+            </a>
+          </h2>
+          <p className="text-sm text-muted-foreground">@{developer.username}</p>
           <h2 className="text-2xl font-bold mb-6">Posts by {user.name}</h2>
           <div className="space-y-6">
             {posts.map((post) => (
               <article key={post.id} className="p-6 rounded-xl bg-card border">
                 <h3 className="text-xl font-semibold mb-2 capitalize">
-                  <Link href={/posts/${post.id}} className="hover:text-primary">
+                  <Link href={`/posts/${post.id}`} className="hover:text-primary">
                     {post.title}
                   </Link>
                 </h3>
@@ -241,7 +278,7 @@ export default function UserProfile({ params }: { params: { id: string } }) {
                 </p>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <FiMessageSquare />
-                  <Link href={/posts/${post.id}} className="hover:text-primary">
+                  <Link href={`/posts/${post.id}`} className="hover:text-primary">
                     View Comments
                   </Link>
                 </div>
@@ -250,9 +287,39 @@ export default function UserProfile({ params }: { params: { id: string } }) {
           </div>
         </div>
       </div>
+
+      <div className="space-y-2 text-sm">
+        <p className="text-muted-foreground">
+          <strong>Company:</strong> {developer.company.name}
+        </p>
+        <p className="text-muted-foreground">
+          <strong>Location:</strong> {developer.address.city}
+        </p>
+        <p className="text-muted-foreground">
+          <strong>Website:</strong>{' '}
+          <a
+            href={`https://${developer.website}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-primary"
+          >
+            {developer.website}
+          </a>
+        </p>
+      </div>
+
+      <div className="mt-4 pt-4 border-t">
+        <a
+          href={`/developers/${developer.id}`}
+          className="text-sm text-primary hover:underline"
+        >
+          View Profile →
+        </a>
+      </div>
     </div>
   );
+} 
 }
 
-
-
+// Skeleton Loader
+function UserProfileSkeleton() {

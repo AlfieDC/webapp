@@ -3,6 +3,7 @@
 import { FiUsers, FiMessageSquare, FiFileText } from 'react-icons/fi';
 import { ReactNode } from 'react';
 import { getStats } from '@/lib/api';
+import Link from 'next/link';
 
 interface StatCardProps {
   icon: ReactNode;
@@ -39,16 +40,16 @@ export default async function Home() {
       <div className="container mx-auto px-6 py-16">
         <h2 className="text-3xl font-bold text-center mb-12">Explore FoodieConnect</h2>
         <div className="flex justify-center gap-4 mb-12">
-          <a href="/users">
+          <Link href="/users">
             <button className="px-6 py-2 rounded-lg bg-primary text-white font-semibold hover:bg-primary/90 transition">
               FOODIES
             </button>
-          </a>
-          <a href="/posts">
+          </Link>
+          <Link href="/posts">
             <button className="px-6 py-2 rounded-lg bg-secondary text-primary font-semibold hover:bg-secondary/80 transition">
               POSTS
             </button>
-          </a>
+          </Link>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           <FeatureCard
@@ -72,9 +73,6 @@ export default async function Home() {
       {/* Stats Section */}
       <div className="container mx-auto px-6 py-16">
         <h2 className="text-3xl font-bold text-center mb-12">Dashboard</h2>
-        {/*
-          Find the max value for scaling bars
-        */}
         {(() => {
           const max = Math.max(stats.users, stats.posts, stats.comments);
           return (
@@ -109,8 +107,7 @@ export default async function Home() {
 }
 
 function StatCard({ icon, title, value, max, color }: StatCardProps & { max: number; color: string }) {
-  // Calculate bar height
-  const barHeight = ((parseInt(value) / max) * 100) || 10; // fallback to 10 if max is 0
+  const barHeight = ((parseInt(value) / max) * 100) || 10;
 
   return (
     <div className="p-6 rounded-xl bg-card border transition-all hover:shadow-lg flex flex-col justify-between h-full">
@@ -121,17 +118,15 @@ function StatCard({ icon, title, value, max, color }: StatCardProps & { max: num
           <p className="text-2xl font-bold">{value}</p>
         </div>
       </div>
-      {/* Bar Graph */}
       <div className="flex flex-col items-center mt-4">
         <div
           className={`w-10 rounded-t-full bg-gradient-to-t ${color} shadow-lg relative flex items-end transition-all`}
           style={{
-            height: `${barHeight + 30}px`, // min height for visibility
+            height: `${barHeight + 30}px`,
             boxShadow: '0 4px 24px 0 rgba(59,130,246,0.15)',
             overflow: 'hidden',
           }}
         >
-          {/* "Liquid" effect: a blurred circle at the top */}
           <div className="absolute left-1/2 -translate-x-1/2 -top-3 w-9 h-4 bg-blue-300/70 blur-md rounded-full z-10" />
         </div>
       </div>
@@ -152,10 +147,8 @@ function FeatureCard({ title, description, link }: FeatureCardProps) {
 }
 
 function BarGraph({ stats }: { stats: { users: number; posts: number; comments: number } }) {
-  // Find the max value for scaling
   const max = Math.max(stats.users, stats.posts, stats.comments);
 
-  // Bar data
   const bars = [
     { label: 'Foodies', value: stats.users, color: 'from-blue-400 to-blue-600' },
     { label: 'Posts', value: stats.posts, color: 'from-cyan-400 to-cyan-600' },
@@ -177,12 +170,11 @@ function BarGraph({ stats }: { stats: { users: number; posts: number; comments: 
               transition-all
             `}
             style={{
-              height: `${(bar.value / max) * 180 + 40}px`, // min height for visibility
+              height: `${(bar.value / max) * 180 + 40}px`,
               boxShadow: '0 4px 24px 0 rgba(59,130,246,0.15)',
               overflow: 'hidden',
             }}
           >
-            {/* "Liquid" effect: a blurred circle at the top */}
             <div className="absolute left-1/2 -translate-x-1/2 -top-4 w-14 h-7 bg-blue-300/70 blur-md rounded-full z-10" />
             <span className="absolute w-full text-center text-white font-bold text-lg z-20" style={{ top: 12 }}>
               {bar.value}

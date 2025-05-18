@@ -26,11 +26,10 @@ export default async function Home() {
         <div className="container mx-auto px-6">
           <div className="text-center">
             <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">
-              Welcome to DevConnect
+              Welcome to FoodieConnect
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-              Connect, collaborate, and grow with developers from around the world.
-              Share your knowledge and learn from others.
+              Join a vibrant community of food lovers! Share recipes, food experiences, and restaurant reviews. Connect, inspire, and discover new tastes from around the world.
             </p>
           </div>
         </div>
@@ -38,11 +37,11 @@ export default async function Home() {
 
       {/* Features Section */}
       <div className="container mx-auto px-6 py-16">
-        <h2 className="text-3xl font-bold text-center mb-12">Explore DevConnect</h2>
+        <h2 className="text-3xl font-bold text-center mb-12">Explore FoodieConnect</h2>
         <div className="flex justify-center gap-4 mb-12">
-          <a href="/developers">
+          <a href="/users">
             <button className="px-6 py-2 rounded-lg bg-primary text-white font-semibold hover:bg-primary/90 transition">
-              USERS
+              FOODIES
             </button>
           </a>
           <a href="/posts">
@@ -53,18 +52,18 @@ export default async function Home() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           <FeatureCard
-            title="Developer Directory"
-            description="Connect with talented developers from various backgrounds and specialties."
-            link="/developers"
+            title="Our Foodie Community"
+            description="Discover and connect with food lovers from all over the globe. See what inspires their culinary journeys."
+            link="/users"
           />
           <FeatureCard
-            title="Knowledge Sharing"
-            description="Share your insights and learn from others through blog posts and discussions."
+            title="Recipe & Review Board"
+            description="Share your favorite recipes, food experiences, or restaurant reviews. Get inspired by others!"
             link="/posts"
           />
           <FeatureCard
-            title="Community Stats"
-            description="Track community growth and engagement through interactive charts."
+            title="Foodie Stats Dashboard"
+            description="Visualize community activity and diversity with interactive charts and a global map."
             link="/dashboard"
           />
         </div>
@@ -76,7 +75,7 @@ export default async function Home() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <StatCard
             icon={<FiUsers className="w-8 h-8" />}
-            title="Active Developers"
+            title="Active Foodies"
             value={stats.users.toString()}
           />
           <StatCard

@@ -3,6 +3,7 @@
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import { FiMail, FiGlobe, FiMapPin, FiPhone, FiUser, FiMessageSquare } from 'react-icons/fi';
 import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
+import Link from 'next/link';
 
 const mapContainerStyle = {
   width: '100%',
@@ -57,10 +58,13 @@ interface Post {
 function Map({ address }: { address: User['address'] }) {
   const [isInfoWindowOpen, setIsInfoWindowOpen] = useState(false);
 
-  const center = useMemo(() => ({
-    lat: parseFloat(address.geo.lat),
-    lng: parseFloat(address.geo.lng),
-  }), [address.geo.lat, address.geo.lng]);
+  const center = useMemo(
+    () => ({
+      lat: parseFloat(address.geo.lat),
+      lng: parseFloat(address.geo.lng),
+    }),
+    [address.geo.lat, address.geo.lng]
+  );
 
   const onLoad = useCallback((map: google.maps.Map) => {
     const bounds = new window.google.maps.LatLngBounds(center);
@@ -111,33 +115,33 @@ export default function UserProfile({ params }: { params: { id: string } }) {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
-useEffect(() => {
-  const fetchUserAndPosts = async () => {
-    try {
-      const [userRes, postsRes] = await Promise.all([
-        fetch(`https://jsonplaceholder.typicode.com/users/${params.id}`),
-        fetch(`https://jsonplaceholder.typicode.com/users/${params.id}/posts`)
-      ]);
 
-      if (!userRes.ok || !postsRes.ok) {
-        throw new Error('Failed to fetch data');
+  useEffect(() => {
+    const fetchUserAndPosts = async () => {
+      try {
+        const [userRes, postsRes] = await Promise.all([
+          fetch(`https://jsonplaceholder.typicode.com/users/${params.id}`),
+          fetch(`https://jsonplaceholder.typicode.com/users/${params.id}/posts`)
+        ]);
+
+        if (!userRes.ok || !postsRes.ok) {
+          throw new Error('Failed to fetch data');
+        }
+
+        const userData = await userRes.json();
+        const postsData = await postsRes.json();
+
+        setUser(userData);
+        setPosts(postsData);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      } finally {
+        setLoading(false);
       }
+    };
 
-      const userData = await userRes.json();
-      const postsData = await postsRes.json();
-
-      setUser(userData);
-      setPosts(postsData);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  fetchUserAndPosts();
-}, [params.id]);
+    fetchUserAndPosts();
+  }, [params.id]);
 
   if (loading) {
     return <UserProfileSkeleton />;
@@ -150,9 +154,9 @@ useEffect(() => {
           <div className="text-center">
             <h1 className="text-2xl font-bold text-red-500 mb-4">Error</h1>
             <p className="text-muted-foreground">{error || 'User not found'}</p>
-            <a href="/developers" className="text-primary hover:underline mt-4 inline-block">
+            <Link href="/developers" className="text-primary hover:underline mt-4 inline-block">
               Back to Developers
-            </a>
+            </Link>
           </div>
         </div>
       </div>
@@ -238,18 +242,18 @@ useEffect(() => {
             {posts.map((post) => (
               <article key={post.id} className="p-6 rounded-xl bg-card border">
                 <h3 className="text-xl font-semibold mb-2 capitalize">
-                  <a href={`/posts/${post.id}`} className="hover:text-primary">
+                  <Link href={`/posts/${post.id}`} className="hover:text-primary">
                     {post.title}
-                  </a>
+                  </Link>
                 </h3>
                 <p className="text-muted-foreground mb-4">
-                  {post.body.length > 200 ? ${post.body.substring(0, 200)}... : post.body}
+                  {post.body.length > 200 ? `${post.body.substring(0, 200)}...` : post.body}
                 </p>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <FiMessageSquare />
-                  <a href={`/posts/${post.id}`} className="hover:text-primary">
+                  <Link href={`/posts/${post.id}`} className="hover:text-primary">
                     View Comments
-                  </a>
+                  </Link>
                 </div>
               </article>
             ))}
@@ -310,3 +314,4 @@ function UserProfileSkeleton() {
   );
 }
 
+\

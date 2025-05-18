@@ -89,6 +89,7 @@ export default async function Home() {
             value={stats.comments.toString()}
           />
         </div>
+        {/* Bar Graph */}
         <BarGraph stats={stats} />
       </div>
     </div>

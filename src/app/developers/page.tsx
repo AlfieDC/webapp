@@ -1,13 +1,29 @@
-'use client';
+:'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { FiMail, FiGlobe, FiMapPin, FiPhone, FiUser, FiMessageSquare } from 'react-icons/fi';
+import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
 import Link from 'next/link';
 import UserProfileSkeleton from '@/components/UserProfileSkeleton';
-import dynamic from 'next/dynamic';
 
-// Dynamically import the Map component (client-side only)
-const Map = dynamic(() => import('@/components/Map'), { ssr: false });
+const mapContainerStyle = {
+  width: '100%',
+  height: '200px',
+};
+
+const mapOptions = {
+  disableDefaultUI: false,
+  zoomControl: true,
+  mapTypeControl: true,
+  streetViewControl: true,
+  styles: [
+    {
+      featureType: 'poi',
+      elementType: 'labels',
+      stylers: [{ visibility: 'off' }],
+    },
+  ],
+};
 
 interface User {
   id: number;
@@ -40,6 +56,52 @@ interface Post {
   userId: number;
 }
 
+function Map({ address }: { address: User['address'] }) {
+  const [isInfoWindowOpen, setIsInfoWindowOpen] = useState(false);
+
+  const center = useMemo(() => ({
+    lat: parseFloat(address.geo.lat),
+    lng: parseFloat(address.geo.lng),
+  }), [address.geo.lat, address.geo.lng]);
+
+  const onLoad = useCallback((map: google.maps.Map) => {
+    const bounds = new window.google.maps.LatLngBounds(center);
+    map.fitBounds(bounds);
+    map.setZoom(12);
+  }, [center]);
+
+  return (
+    <LoadScript googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}>
+      <GoogleMap
+        mapContainerStyle={mapContainerStyle}
+        center={center}
+        zoom={12}
+        options={mapOptions}
+        onLoad={onLoad}
+      >
+        <Marker position={center} onClick={() => setIsInfoWindowOpen(true)}>
+          {isInfoWindowOpen && (
+            <InfoWindow position={center} onCloseClick={() => setIsInfoWindowOpen(false)}>
+              <div className="p-2">
+                <p className="font-medium">{address.street}, {address.suite}</p>
+                <p className="text-sm">{address.city}, {address.zipcode}</p>
+                <a
+                  href={https://www.google.com/maps/search/?api=1&query=${center.lat},${center.lng}}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-blue-500 hover:text-blue-700 mt-2 inline-block"
+                >
+                  Open in Google Maps
+                </a>
+              </div>
+            </InfoWindow>
+          )}
+        </Marker>
+      </GoogleMap>
+    </LoadScript>
+  );
+}
+
 export default function UserProfile({ params }: { params: { id: string } }) {
   const [user, setUser] = useState<User | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
@@ -50,8 +112,8 @@ export default function UserProfile({ params }: { params: { id: string } }) {
     const fetchUserAndPosts = async () => {
       try {
         const [userRes, postsRes] = await Promise.all([
-          fetch(`https://jsonplaceholder.typicode.com/users/${params.id}`),
-          fetch(`https://jsonplaceholder.typicode.com/users/${params.id}/posts`),
+          fetch(https://jsonplaceholder.typicode.com/users/${params.id}),
+          fetch(https://jsonplaceholder.typicode.com/users/${params.id}/posts)
         ]);
 
         if (!userRes.ok || !postsRes.ok) {
@@ -112,7 +174,7 @@ export default function UserProfile({ params }: { params: { id: string } }) {
                 <div className="space-y-4">
                   <div className="flex items-center gap-2">
                     <FiMail className="text-primary" />
-                    <a href={`mailto:${user.email}`} className="hover:text-primary">
+                    <a href={mailto:${user.email}} className="hover:text-primary">
                       {user.email}
                     </a>
                   </div>
@@ -123,7 +185,7 @@ export default function UserProfile({ params }: { params: { id: string } }) {
                   <div className="flex items-center gap-2">
                     <FiGlobe className="text-primary" />
                     <a
-                      href={`https://${user.website}`}
+                      href={https://${user.website}}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="hover:text-primary"
@@ -170,7 +232,7 @@ export default function UserProfile({ params }: { params: { id: string } }) {
             {posts.map((post) => (
               <article key={post.id} className="p-6 rounded-xl bg-card border">
                 <h3 className="text-xl font-semibold mb-2 capitalize">
-                  <Link href={`/posts/${post.id}`} className="hover:text-primary">
+                  <Link href={/posts/${post.id}} className="hover:text-primary">
                     {post.title}
                   </Link>
                 </h3>
@@ -179,7 +241,7 @@ export default function UserProfile({ params }: { params: { id: string } }) {
                 </p>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <FiMessageSquare />
-                  <Link href={`/posts/${post.id}`} className="hover:text-primary">
+                  <Link href={/posts/${post.id}} className="hover:text-primary">
                     View Comments
                   </Link>
                 </div>
@@ -190,6 +252,4 @@ export default function UserProfile({ params }: { params: { id: string } }) {
       </div>
     </div>
   );
-}
-
-
+} 

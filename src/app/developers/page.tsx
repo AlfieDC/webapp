@@ -1,10 +1,13 @@
-'use client';  // <-- Move this line to the top
-
-import { FiSearch, FiMail, FiGlobe, FiMapPin, FiPhone, FiUser, FiMessageSquare } from 'react-icons/fi';
-import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
+import { FiSearch } from 'react-icons/fi';
 import { getUsers } from '@/lib/api';
 import type { User } from '@/lib/api';
+'use client';
+
+export default async function DevelopersPage() {
+  const developers = await getUsers();
 import { useEffect, useState, useMemo, useCallback } from 'react';
+import { FiMail, FiGlobe, FiMapPin, FiPhone, FiUser, FiMessageSquare } from 'react-icons/fi';
+import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
 import Link from 'next/link';
 
 const mapContainerStyle = {
@@ -85,86 +88,38 @@ function Map({ address }: { address: User['address'] }) {
             />
           </div>
         </div>
-      </div>
-    </div>
+    <LoadScript googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}>
+      <GoogleMap
+        mapContainerStyle={mapContainerStyle}
+        center={center}
+        zoom={12}
+        options={mapOptions}
+        onLoad={onLoad}
+      >
+        <Marker position={center} onClick={() => setIsInfoWindowOpen(true)}>
+          {isInfoWindowOpen && (
+            <InfoWindow position={center} onCloseClick={() => setIsInfoWindowOpen(false)}>
+              <div className="p-2">
+                <p className="font-medium">{address.street}, {address.suite}</p>
+                <p className="text-sm">{address.city}, {address.zipcode}</p>
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${center.lat},${center.lng}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-blue-500 hover:text-blue-700 mt-2 inline-block"
+                >
+                  Open in Google Maps
+                </a>
+              </div>
+            </InfoWindow>
+          )}
+        </Marker>
+      </GoogleMap>
+    </LoadScript>
   );
 }
 
-export default function DevelopersPage() {
-  const [developers, setDevelopers] = useState<User[]>([]);
-
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const users = await getUsers();
-        setDevelopers(users);
-      } catch (err) {
-        console.error('Error fetching users:', err);
-      }
-    };
-
-    fetchUsers();
-  }, []);
-
-  return (
-    <div className="min-h-screen bg-background py-12">
-      <div className="container mx-auto px-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {developers.map((developer) => (
-            <DeveloperCard key={developer.id} developer={developer} />
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function DeveloperCard({ developer }: { developer: User }) {
-  return (
-    <div className="p-6 rounded-xl bg-card border transition-all hover:shadow-lg">
-      <div className="flex items-center gap-4 mb-6">
-        <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-          <span className="text-xl font-semibold text-primary">
-            {developer.name.charAt(0)}
-          </span>
-        </div>
-        <div>
-          <h2 className="text-xl font-semibold">{developer.name}</h2>
-          <p className="text-muted-foreground">@{developer.username}</p>
-        </div>
-      </div>
-      <div className="space-y-2 text-sm">
-        <p className="text-muted-foreground">
-          <strong>Company:</strong> {developer.company.name}
-        </p>
-        <p className="text-muted-foreground">
-          <strong>Location:</strong> {developer.address.city}
-        </p>
-        <p className="text-muted-foreground">
-          <strong>Website:</strong>{' '}
-          <a
-            href={`https://${developer.website}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-primary"
-          >
-            {developer.website}
-          </a>
-        </p>
-      </div>
-      <div className="mt-4 pt-4 border-t">
-        <a
-          href={`/developers/${developer.id}`}
-          className="text-sm text-primary hover:underline"
-        >
-          View Profile →
-        </a>
-      </div>
-    </div>
-  );
-}
-
-function UserProfile({ params }: { params: { id: string } }) {
+export default function UserProfile({ params }: { params: { id: string } }) {
   const [user, setUser] = useState<User | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
@@ -194,6 +149,10 @@ function UserProfile({ params }: { params: { id: string } }) {
       }
     };
 
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {developers.map((developer) => (
+            <DeveloperCard key={developer.id} developer={developer} />
+          ))}
     fetchUserAndPosts();
   }, [params.id]);
 
@@ -212,10 +171,20 @@ function UserProfile({ params }: { params: { id: string } }) {
           </Link>
         </div>
       </div>
+    </div>
+  );
+}
     );
   }
 
+function DeveloperCard({ developer }: { developer: User }) {
   return (
+    <div className="p-6 rounded-xl bg-card border transition-all hover:shadow-lg">
+      <div className="flex items-center gap-4 mb-6">
+        <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+          <span className="text-xl font-semibold text-primary">
+            {developer.name.charAt(0)}
+          </span>
     <div className="min-h-screen bg-background py-12">
       <div className="container mx-auto px-6">
         {/* User Info */}
@@ -289,6 +258,12 @@ function UserProfile({ params }: { params: { id: string } }) {
 
         {/* User Posts */}
         <div>
+          <h2 className="text-lg font-semibold">
+            <a href={`/developers/${developer.id}`} className="hover:text-primary">
+              {developer.name}
+            </a>
+          </h2>
+          <p className="text-sm text-muted-foreground">@{developer.username}</p>
           <h2 className="text-2xl font-bold mb-6">Posts by {user.name}</h2>
           <div className="space-y-6">
             {posts.map((post) => (
@@ -312,16 +287,39 @@ function UserProfile({ params }: { params: { id: string } }) {
           </div>
         </div>
       </div>
-    </div>
-  );
-}
 
-function UserProfileSkeleton() {
-  return (
-    <div className="min-h-screen bg-background py-12">
-      <div className="container mx-auto px-6 text-center">
-        <h2 className="text-3xl font-semibold text-muted-foreground">Loading...</h2>
+      <div className="space-y-2 text-sm">
+        <p className="text-muted-foreground">
+          <strong>Company:</strong> {developer.company.name}
+        </p>
+        <p className="text-muted-foreground">
+          <strong>Location:</strong> {developer.address.city}
+        </p>
+        <p className="text-muted-foreground">
+          <strong>Website:</strong>{' '}
+          <a
+            href={`https://${developer.website}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-primary"
+          >
+            {developer.website}
+          </a>
+        </p>
+      </div>
+
+      <div className="mt-4 pt-4 border-t">
+        <a
+          href={`/developers/${developer.id}`}
+          className="text-sm text-primary hover:underline"
+        >
+          View Profile →
+        </a>
       </div>
     </div>
   );
+} 
 }
+
+// Skeleton Loader
+function UserProfileSkeleton() {

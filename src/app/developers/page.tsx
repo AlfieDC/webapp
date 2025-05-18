@@ -322,5 +322,5 @@ function DeveloperCard({ developer }: { developer: User }) {
 } 
 }
 
-// Skeleton Loader
 function UserProfileSkeleton() {
+

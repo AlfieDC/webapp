@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { FiMail, FiGlobe, FiMapPin, FiPhone, FiUser, FiMessageSquare } from 'react-icons/fi';
 import Link from 'next/link';
 
-import UserProfileSkeleton from '@/components/UserProfileSkeleton'; 
+import UserProfileSkeleton from '@/components/UserProfileSkeleton';
 type User = {
   id: number;
   name: string;

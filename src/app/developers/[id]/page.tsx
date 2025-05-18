@@ -10,7 +10,7 @@ export default function UserProfile({ params }: { params: { id: string } }) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchUser AndPosts = async () => {
+    const fetchUser AndPosts = async () => {  
       try {
         const [userRes, postsRes] = await Promise.all([
           fetch(`https://jsonplaceholder.typicode.com/users/${params.id}`),
@@ -33,7 +33,7 @@ export default function UserProfile({ params }: { params: { id: string } }) {
       }
     };
 
-    fetchUser AndPosts();
+    fetchUser AndPosts();  
   }, [params.id]);
 
   if (loading) {
@@ -55,5 +55,4 @@ export default function UserProfile({ params }: { params: { id: string } }) {
       </div>
     );
   }
-
 }

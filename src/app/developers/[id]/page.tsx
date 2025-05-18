@@ -111,33 +111,33 @@ export default function UserProfile({ params }: { params: { id: string } }) {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+useEffect(() => {
+  const fetchUserAndPosts = async () => {
+    try {
+      const [userRes, postsRes] = await Promise.all([
+        fetch(`https://jsonplaceholder.typicode.com/users/${params.id}`),
+        fetch(`https://jsonplaceholder.typicode.com/users/${params.id}/posts`)
+      ]);
 
-  useEffect(() => {
-    const fetchUserAndPosts = async () => {
-      try {
-        const [userRes, postsRes] = await Promise.all([
-          fetch(https://jsonplaceholder.typicode.com/users/${params.id}),
-          fetch(https://jsonplaceholder.typicode.com/users/${params.id}/posts)
-        ]);
-
-        if (!userRes.ok || !postsRes.ok) {
-          throw new Error('Failed to fetch data');
-        }
-
-        const userData = await userRes.json();
-        const postsData = await postsRes.json();
-
-        setUser(userData);
-        setPosts(postsData);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
-      } finally {
-        setLoading(false);
+      if (!userRes.ok || !postsRes.ok) {
+        throw new Error('Failed to fetch data');
       }
-    };
 
-    fetchUserAndPosts();
-  }, [params.id]);
+      const userData = await userRes.json();
+      const postsData = await postsRes.json();
+
+      setUser(userData);
+      setPosts(postsData);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchUserAndPosts();
+}, [params.id]);
 
   if (loading) {
     return <UserProfileSkeleton />;

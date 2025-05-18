@@ -77,16 +77,22 @@ export default async function Home() {
             icon={<FiUsers className="w-8 h-8" />}
             title="Active Foodies"
             value={stats.users.toString()}
+            max={Math.max(stats.users, stats.posts, stats.comments)}
+            color="from-blue-400 to-blue-600"
           />
           <StatCard
             icon={<FiFileText className="w-8 h-8" />}
             title="Total Posts"
             value={stats.posts.toString()}
+            max={Math.max(stats.users, stats.posts, stats.comments)}
+            color="from-cyan-400 to-cyan-600"
           />
           <StatCard
             icon={<FiMessageSquare className="w-8 h-8" />}
             title="Comments"
             value={stats.comments.toString()}
+            max={Math.max(stats.users, stats.posts, stats.comments)}
+            color="from-indigo-400 to-indigo-600"
           />
         </div>
         {/* Bar Graph */}
@@ -96,14 +102,31 @@ export default async function Home() {
   );
 }
 
-function StatCard({ icon, title, value }: StatCardProps) {
+function StatCard({ icon, title, value, max, color }: StatCardProps & { max: number; color: string }) {
+  // Calculate bar height
+  const barHeight = ((parseInt(value) / max) * 100) || 10; // fallback to 10 if max is 0
+
   return (
-    <div className="p-6 rounded-xl bg-card border transition-all hover:shadow-lg">
-      <div className="flex items-center space-x-4">
+    <div className="p-6 rounded-xl bg-card border transition-all hover:shadow-lg flex flex-col justify-between h-full">
+      <div className="flex items-center space-x-4 mb-4">
         <div className="text-primary">{icon}</div>
         <div>
           <p className="text-sm text-muted-foreground">{title}</p>
           <p className="text-2xl font-bold">{value}</p>
+        </div>
+      </div>
+      {/* Bar Graph */}
+      <div className="flex flex-col items-center mt-4">
+        <div
+          className={`w-10 rounded-t-full bg-gradient-to-t ${color} shadow-lg relative flex items-end transition-all`}
+          style={{
+            height: `${barHeight + 30}px`, // min height for visibility
+            boxShadow: '0 4px 24px 0 rgba(59,130,246,0.15)',
+            overflow: 'hidden',
+          }}
+        >
+          {/* "Liquid" effect: a blurred circle at the top */}
+          <div className="absolute left-1/2 -translate-x-1/2 -top-3 w-9 h-4 bg-blue-300/70 blur-md rounded-full z-10" />
         </div>
       </div>
     </div>

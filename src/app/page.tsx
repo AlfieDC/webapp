@@ -1,4 +1,4 @@
-'use client'
+
 
 import { FiUsers, FiMessageSquare, FiFileText } from 'react-icons/fi';
 import { ReactNode } from 'react';
@@ -40,11 +40,13 @@ export default async function Home() {
       <div className="container mx-auto px-6 py-16">
         <h2 className="text-3xl font-bold text-center mb-12">Explore FoodieConnect</h2>
         <div className="flex justify-center gap-4 mb-12">
-          <Link href="/users">
-            <button className="px-6 py-2 rounded-lg bg-primary text-white font-semibold hover:bg-primary/90 transition">
-              FOODIES
-            </button>
-          </Link>
+         <Link
+            href="/users"
+            className="px-6 py-2 rounded-lg bg-primary text-white font-semibold hover:bg-primary/90 transition"
+          >
+             FOODIES
+           </Link>
+
           <Link href="/posts">
             <button className="px-6 py-2 rounded-lg bg-secondary text-primary font-semibold hover:bg-secondary/80 transition">
               POSTS

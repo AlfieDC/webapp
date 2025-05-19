@@ -1,91 +1,78 @@
-'use client';
+import React from "react";
+import { notFound } from "next/navigation";
+import Link from "next/link";
 
-import { FiUser, FiMessageSquare, FiArrowLeft } from 'react-icons/fi';
-import { getPost, getUser, getPostComments } from '@/lib/api';
-import type { Comment } from '@/lib/api';
+// Define the User type based on JSONPlaceholder
+type User = {
+  id: number;
+  name: string;
+  username: string;
+  email: string;
+  phone: string;
+  website: string;
+  address: {
+    street: string;
+    suite: string;
+    city: string;
+    zipcode: string;
+    geo: {
+      lat: string;
+      lng: string;
+    };
+  };
+};
 
-export default async function PostPage({ params }: { params: { id: string } }) {
-  const [post, author, comments] = await Promise.all([
-    getPost(params.id),
-    getPost(params.id).then(post => getUser(post.userId)),
-    getPostComments(params.id)
-  ]);
+async function getUser(id: string): Promise<User | null> {
+  const res = await fetch(`https://jsonplaceholder.typicode.com/users/${id}`, {
+    cache: "no-store",
+  });
 
-  return (
-    <div className="min-h-screen bg-background py-12">
-      <div className="container mx-auto px-6">
-        <a
-          href="/posts"
-          className="inline-flex items-center text-primary hover:underline mb-8"
-        >
-          <FiArrowLeft className="mr-2" />
-          Back to Posts
-        </a>
+  if (!res.ok) return null;
 
-        {/* Post Content */}
-        <article className="max-w-3xl mx-auto">
-          <div className="p-8 rounded-xl bg-card border mb-8">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                <span className="text-lg font-semibold text-primary">
-                  {author.name.charAt(0)}
-                </span>
-              </div>
-              <div>
-                <p className="text-sm font-medium">
-                  <a href={`/developers/${author.id}`} className="hover:text-primary">
-                    {author.name}
-                  </a>
-                </p>
-                <p className="text-xs text-muted-foreground">@{author.username}</p>
-              </div>
-            </div>
-
-            <h1 className="text-3xl font-bold mb-4 capitalize">{post.title}</h1>
-            <p className="text-muted-foreground whitespace-pre-line">{post.body}</p>
-          </div>
-
-          {/* Comments Section */}
-          <div>
-            <div className="flex items-center gap-2 mb-6">
-              <FiMessageSquare className="text-primary" />
-              <h2 className="text-xl font-semibold">
-                Comments ({comments.length})
-              </h2>
-            </div>
-
-            <div className="space-y-6">
-              {comments.map((comment) => (
-                <CommentCard key={comment.id} comment={comment} />
-              ))}
-            </div>
-          </div>
-        </article>
-      </div>
-    </div>
-  );
+  return res.json();
 }
 
-function CommentCard({ comment }: { comment: Comment }) {
+interface Props {
+  params: { id: string };
+}
+
+export default async function UserDetailPage({ params }: Props) {
+  const user = await getUser(params.id);
+
+  if (!user) notFound();
+
+  // Create a Google Maps Embed URL using user's coordinates
+  const { lat, lng } = user.address.geo;
+  const mapSrc = `https://www.google.com/maps?q=${lat},${lng}&hl=en&z=14&output=embed`;
+
   return (
-    <div className="p-6 rounded-xl bg-card border">
-      <div className="flex items-center gap-2 mb-2">
-        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-          <span className="text-sm font-semibold text-primary">
-            {comment.name.charAt(0)}
-          </span>
-        </div>
-        <div>
-          <p className="text-sm font-medium">{comment.name}</p>
-          <a
-            href={`mailto:${comment.email}`}
-            className="text-xs text-muted-foreground hover:text-primary"
-          >
-            {comment.email}
-          </a>
-        </div>
+    <div className="max-w-4xl mx-auto px-4 py-8">
+      <Link href="/users" className="text-blue-600 hover:underline block mb-4">
+        ← Back to Users
+      </Link>
+
+      <h1 className="text-3xl font-bold mb-4">{user.name}</h1>
+      <p className="mb-1"><strong>Username:</strong> {user.username}</p>
+      <p className="mb-1"><strong>Email:</strong> {user.email}</p>
+      <p className="mb-1"><strong>Phone:</strong> {user.phone}</p>
+      <p className="mb-4"><strong>Website:</strong> {user.website}</p>
+
+      <h2 className="text-2xl font-semibold mt-6 mb-2">Address</h2>
+      <p className="mb-2">
+        {user.address.suite}, {user.address.street}, {user.address.city}, {user.address.zipcode}
+      </p>
+
+      {/* Embed Google Maps */}
+      <div className="mt-4 border rounded overflow-hidden shadow-lg h-[400px]">
+        <iframe
+          title="User Location Map"
+          width="100%"
+          height="100%"
+          loading="lazy"
+          allowFullScreen
+          src={mapSrc}
+        ></iframe>
       </div>
-      <p className="text-muted-foreground pl-10">{comment.body}</p>
     </div>
   );
 }
